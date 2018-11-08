@@ -365,6 +365,7 @@ NotGameOver = True
 while NotGameOver: # main game loop
 	#pygame.draw.ellipse(DISPLAYSURF, YELLOW, [560, 280, 20, 20])
 	for event in pygame.event.get():
+		print("1")
 		keys = pygame.key.get_pressed()
 		if keys[pygame.K_LEFT] == 1:
 			#Lefttimes+=1
