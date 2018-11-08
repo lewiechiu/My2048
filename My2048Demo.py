@@ -486,36 +486,29 @@ while NotGameOver: # main game loop
 	pygame.event.pump()
 	time.sleep(0.01)
 	if keys[pygame.K_LEFT] == 1:
-		
-		#Lefttimes+=1
-		#text_width = LeftLabel.get_width()
-		#LeftNumber = ShowText(str(Lefttimes),LabelX+text_width, LabelY+text_height*3,text_size,(0,200,200))
 		if(not X.checkMovable("l")):
 			X.align("left")
 		else:
-			keys[pygame.K_LEFT] == 0
+			keys[pygame.K_LEFT] = 0
 	if keys[pygame.K_RIGHT] == 1:
-		#print('RIGHT pressed')
-		#Righttimes+=1
-		#text_width = RightLabel.get_width()
-		#RightNumber = ShowText(str(Righttimes),LabelX+text_width, LabelY+text_height*2,text_size,(0,200,200))
-		X.align("right")
+		if(not X.checkMovable("r")):
+			X.align("right")
+		else:
+			keys[pygame.K_RIGHT] = 0
 	if keys[pygame.K_UP] == 1:
-		#print('UP pressed')
-		#UPtimes+=1
-		#text_width = UpLabel.get_width()
-		#UpNumber = ShowText(str(UPtimes),LabelX+text_width, LabelY,text_size,(0,200,200))
-		X.align("up")
+		if(not X.checkMovable("u")):
+			X.align("up")
+		else:
+			keys[pygame.K_UP] = 0
 	if keys[pygame.K_DOWN] == 1:
-		#print('DOWN pressed')
-		#Downtimes+=1
-		#text_width = DownLabel.get_width()
-		#DownNumber = ShowText(str(Downtimes),LabelX+text_width, LabelY+text_height,text_size,(0,200,200))
-		X.align("down")
+		if(not X.checkMovable("d")):
+			X.align("down")
+		else:
+			keys[pygame.K_DOWN] = 0
 	if(not X.checkGameOver()):
 		GameOver()
 		break
-	if(keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[pygame.K_DOWN]):
+	if(keys[pygame.K_LEFT]==1 or keys[pygame.K_RIGHT]==1 or keys[pygame.K_UP]==1 or keys[pygame.K_DOWN]==1):
 		for row in range(4):
 			for col in range(4):
 				print(X.matrix[row][col], end=" ")
