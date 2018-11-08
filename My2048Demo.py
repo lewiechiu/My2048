@@ -221,6 +221,8 @@ class My2048:
 			for j in range(4):
 				if self.matrix[i][j] == 0 :
 					emptyPos.append(4*i+j)
+		if(len(emptyPos)==0):
+			return
 		loc1 = random.choice(emptyPos)
 
 		for row in range(4):
@@ -230,6 +232,39 @@ class My2048:
 				loc1 -= 1
 	def getScore(self):
 		return self.score
+	def checkGameOver(self):
+		for i in range(4):
+			for j in range(4):
+				if(self.matrix[i][j]==0):
+					return True
+				if(i + 1 <=3):
+					if(self.matrix[i][j]==self.matrix[i+1][j]):
+						return True
+				if(i-1 >=0):
+					if(self.matrix[i][j]==self.matrix[i-1][j]):
+						return True
+				if(j+1 <= 3):
+					if(self.matrix[i][j]==self.matrix[i][j+1]):
+						return True
+				if(j-1 >= 0):
+					if(self.matrix[i][j]==self.matrix[i][j-1]):
+						return True
+		return False
+	def checkMovable(self,dir):
+		prev = copy.deepcopy(self)
+		if(dir == 'l'):
+			prev.align("left")
+		if(dir == 'r'):
+			prev.align("right")
+		if(dir == 'u'):
+			prev.align("up")
+		if(dir == 'd'):
+			prev.align("down")
+		for i in range(4):
+			for j in range(4):
+				if(prev.matrix[i][j]!=self.matrix[i][j]):
+					return True
+		return False
 
 X = My2048()
 
@@ -323,9 +358,8 @@ def drawGrid():
 	scoreBG[3] += 20
 	scoreBG.center = (rect2.topright[0]-90+scoreBG.center[0] , rect2.topright[1]-90 +scoreBG.center[1])
 	hello = pygame.draw.rect(DISPLAYSURF,tileColor,scoreBG)	
-	resatrticon = pygame.image.load("icons8-restart-50.png")
-	resatrticon = pygame.transform.scale(resatrticon,(50,50))
-	DISPLAYSURF.blit(resatrticon,(scoreBG.topleft[0]-70,scoreBG.topleft[1]))
+
+
 	ShowText(str(X.score),scoreBG.center[0]-len(str(X.score))*7,scoreBG.center[1]-9,25,(0,0,0),tileColor)
 
 drawGrid()
@@ -347,6 +381,8 @@ def GameOver():
 	textSurface.set_alpha(200)
 	DISPLAYSURF.blit(textSurface,(20,500))
 	pygame.display.update()
+	
+	time.sleep(3)
 
 def drawNumber():
 	for i in range(4):
@@ -379,99 +415,120 @@ def forsee(mat,depth):
 	tempd = copy.deepcopy(mat) 
 	tempd.matrix = copy.deepcopy(mat.matrix)
 
-	print("left")
+	#print("left")
 	templ.align("left")
-	print("right")
+	#print("right")
 	tempr.align("right")
 
-	print("up")
+	#print("up")
 	tempu.align("up")
 
-	print("down")
+	#print("down")
 	tempd.align("down")
-	if(dep == 5):
+	maxScore = copy.deepcopy(mat.score)
+	direc = 0
+	if(dep == 3):
 		dep -= 1
-		print(dep)
-		return
+		#print(dep)
+		return maxScore
+	
 	for i in range(4):
 		for j in range(4):
 			if(templ.matrix[i][j] == 0):
 				templ.matrix[i][j] = 2
-				forsee(copy.deepcopy(templ),dep+1)
+				ans = forsee(copy.deepcopy(templ),dep+1)
+				if(ans > maxScore):
+					maxScore = ans
+					direc = 0
+
 				templ.matrix[i][j] = 0
+	print("-----")
+	for i in range(4):
+		for j in range(4):
+			if(tempr.matrix[i][j] == 0):
+				tempr.matrix[i][j] = 2
+				ans = forsee(copy.deepcopy(tempr),dep+1)
+				if(ans > maxScore):
+					maxScore = ans
+					direc = 1
+				tempr.matrix[i][j] = 0
+	print("-----")
+	for i in range(4):
+		for j in range(4):
+			if(tempd.matrix[i][j] == 0):
+				tempd.matrix[i][j] = 2
+				ans = forsee(copy.deepcopy(tempd),dep+1)
+				if(ans > maxScore):
+					maxScore = ans
+					direc = 2
+				tempd.matrix[i][j] = 0
+	print("-----")
+	for i in range(4):
+		for j in range(4):
+			if(tempu.matrix[i][j] == 0):
+				tempu.matrix[i][j] = 2
+				ans = forsee(copy.deepcopy(tempu),dep+1)
+				if(ans > maxScore):
+					maxScore = ans
+					direc = 3
+				tempu.matrix[i][j] = 0
+	print ("direction: ", direc)
+	if(dep == 1):
+		return direc
+	return maxScore
 	
-
 while NotGameOver: # main game loop
-	#pygame.draw.ellipse(DISPLAYSURF, YELLOW, [560, 280, 20, 20])
-	time.sleep(0.1)
-	for event in pygame.event.get():
-		
+	keys = pygame.key.get_pressed()
+	while (not(keys[pygame.K_LEFT] == 1 or keys[pygame.K_RIGHT] == 1 or keys[pygame.K_UP] == 1 or keys[pygame.K_DOWN] == 1)):
 		keys = pygame.key.get_pressed()
-		if keys[pygame.K_LEFT] == 1:
-			
-			#Lefttimes+=1
-			#text_width = LeftLabel.get_width()
-			#LeftNumber = ShowText(str(Lefttimes),LabelX+text_width, LabelY+text_height*3,text_size,(0,200,200))
-			for i in X.matrix:
-				f.write("%s " % i)
-			f.write("\n")
-			X.align("left")
-			
-			try:
-				X.randomSpawn()
-			except:
-				GameOver()
-				NotGameOver = False
-				#break
-			drawGrid()
-			drawNumber()
-		if keys[pygame.K_RIGHT] == 1:
-			#print('RIGHT pressed')
-			#Righttimes+=1
-			#text_width = RightLabel.get_width()
-			#RightNumber = ShowText(str(Righttimes),LabelX+text_width, LabelY+text_height*2,text_size,(0,200,200))
-			X.align("right")
-			try:
-				X.randomSpawn()
-			except:
-				GameOver()
-				NotGameOver = False
-				#break
-			drawGrid()
-			drawNumber()
-		if keys[pygame.K_UP] == 1:
-			#print('UP pressed')
-			#UPtimes+=1
-			#text_width = UpLabel.get_width()
-			#UpNumber = ShowText(str(UPtimes),LabelX+text_width, LabelY,text_size,(0,200,200))
-			X.align("up")
-			try:
-				X.randomSpawn()
-			except:
-				GameOver()
-				NotGameOver = False
-				#break
-			drawGrid()
-			drawNumber()
-		if keys[pygame.K_DOWN] == 1:
-			#print('DOWN pressed')
-			#Downtimes+=1
-			#text_width = DownLabel.get_width()
-			#DownNumber = ShowText(str(Downtimes),LabelX+text_width, LabelY+text_height,text_size,(0,200,200))
-			X.align("down")
-			try:
-				X.randomSpawn()
-			except:
-				GameOver()
-				NotGameOver = False
-				#break
-			drawGrid()
-			drawNumber()
-		if keys[pygame.K_ESCAPE] == 1:
-			pygame.quit()
-			f.close()
-			sys.exit()
-		if(keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[pygame.K_DOWN]):
-			forsee(X,1)
+		pygame.event.pump()
 
+	pygame.event.pump()
+	time.sleep(0.01)
+	if keys[pygame.K_LEFT] == 1:
+		
+		#Lefttimes+=1
+		#text_width = LeftLabel.get_width()
+		#LeftNumber = ShowText(str(Lefttimes),LabelX+text_width, LabelY+text_height*3,text_size,(0,200,200))
+		if(not X.checkMovable("l")):
+			X.align("left")
+		else:
+			keys[pygame.K_LEFT] == 0
+	if keys[pygame.K_RIGHT] == 1:
+		#print('RIGHT pressed')
+		#Righttimes+=1
+		#text_width = RightLabel.get_width()
+		#RightNumber = ShowText(str(Righttimes),LabelX+text_width, LabelY+text_height*2,text_size,(0,200,200))
+		X.align("right")
+	if keys[pygame.K_UP] == 1:
+		#print('UP pressed')
+		#UPtimes+=1
+		#text_width = UpLabel.get_width()
+		#UpNumber = ShowText(str(UPtimes),LabelX+text_width, LabelY,text_size,(0,200,200))
+		X.align("up")
+	if keys[pygame.K_DOWN] == 1:
+		#print('DOWN pressed')
+		#Downtimes+=1
+		#text_width = DownLabel.get_width()
+		#DownNumber = ShowText(str(Downtimes),LabelX+text_width, LabelY+text_height,text_size,(0,200,200))
+		X.align("down")
+	if(not X.checkGameOver()):
+		GameOver()
+		break
+	if(keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[pygame.K_DOWN]):
+		for row in range(4):
+			for col in range(4):
+				print(X.matrix[row][col], end=" ")
+			print()
+		print("---------")
+		X.randomSpawn()
+		drawGrid()
+		drawNumber()
 		pygame.display.update()
+	if keys[pygame.K_ESCAPE] == 1:
+		pygame.quit()
+		f.close()
+		sys.exit()
+
+			
+	
