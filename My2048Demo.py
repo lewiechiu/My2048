@@ -1,3 +1,4 @@
+
 import pygame, sys
 from pygame.locals import *
 import random
@@ -25,24 +26,14 @@ TextFont = "Arial"
 #這四個參數是拿來紀錄上下左右鍵被按了幾次
 
 Window_Width, Window_Height = (500,850)
-keyList = ["Up","Down","Left","Right"]
-
 
 text_size = 14
 text_height = text_size
 pygame.init()
 
-def printMatrix(a):
-	for i in range(len(a)):
-	    for j in range(len(a[i])):
-	        print(a[i][j], end=' ')
-	    print()
 
 DISPLAYSURF = pygame.display.set_mode((500, 850))
 pygame.display.set_caption('2048')
-
-class tile:
-	value = 0
 
 class My2048:
 	matrix = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
@@ -55,7 +46,7 @@ class My2048:
 			loc2 = random.randint(0,15)
 			if loc2 == loc1:
 				loc2 = random.randint(0,15)
-			print(loc2,"  ",loc1)
+			#print(loc2,"  ",loc1)
 			for row in range(4):
 				for col in range(4):
 					if loc2 == 0:
@@ -72,10 +63,6 @@ class My2048:
 					if loc1 == 0:
 						self.matrix[row][col] = random.randint(1,2) * 2
 					loc1 -= 1
-		for row in range(4):
-			for col in range(len(self.matrix[row])):
-				print(self.matrix[row][col], end=" ")
-			print()
 
 	def align(self,direction):
 		if direction == "left":
@@ -94,11 +81,6 @@ class My2048:
 				#insert back proper len
 				for times in range(4-len(self.matrix[row])):
 					self.matrix[row].append(0)
-			#for row in range(4):
-			#	for col in range(len(self.matrix[row])):
-			#		print(self.matrix[row][col], end=" ")
-			#	print()
-			#print("---------")
 		if direction == "right":
 			for row in range(4):
 				#to remove 0s in the array
@@ -116,13 +98,8 @@ class My2048:
 				#insert back proper len
 				for times in range(4-len(self.matrix[row])):
 					self.matrix[row].insert(0,0)
-			#for row in range(4):
-			#	for col in range(len(self.matrix[row])):
-			#		print(self.matrix[row][col], end=" ")
-			#	print()
-			#print("---------")
+
 		if direction == "up":
-			#we have to rotate the matrix first, since it is nearly too hard to compute it vertically
 			TempMatrix = [[],[],[],[]]
 
 			for col in range(3,-1,-1):
@@ -153,12 +130,6 @@ class My2048:
 			for row in range(4):
 				for col in range(4):
 					self.matrix[col][row*(-1)+3] = TempMatrix[row][col]
-
-			#for row in range(4):
-			#	for col in range(len(TempMatrix[row])):
-			#		print(self.matrix[row][col], end=" ")
-			#	print()
-			#print("---------")
 		if direction == "down":
 			TempMatrix = [[],[],[],[]]
 			for col in range(3,-1,-1):
@@ -271,12 +242,6 @@ X = My2048()
 
 #----------這裡以下是拿來畫圖的function 不用會
 
-#def draw_Tile(text,rect):
-	#This is the function to draw each tile
-	#text: number
-	#rect: an rect object
-
-
 def text_objects(text, font,color,BGC):
     textSurface = font.render(text, True, color,BGC)
     return textSurface, textSurface.get_rect()
@@ -381,7 +346,6 @@ def GameOver():
 	textSurface.set_alpha(200)
 	DISPLAYSURF.blit(textSurface,(20,500))
 	pygame.display.update()
-	
 	time.sleep(3)
 
 def drawNumber():
@@ -402,10 +366,10 @@ print(Window_Width,",",Window_Width)
 NotGameOver = True
 f = open("out.txt","w")
 
-def forsee(mat,depth):
+def forsee(mat,depth,lim):
 	print(depth)
 	dep = copy.deepcopy(depth)
-
+	_limit = copy.deepcopy(lim)
 	tempr = copy.deepcopy(mat)
 	tempr.matrix = copy.deepcopy(mat.matrix)
 	templ = copy.deepcopy(mat) 
@@ -415,113 +379,129 @@ def forsee(mat,depth):
 	tempd = copy.deepcopy(mat) 
 	tempd.matrix = copy.deepcopy(mat.matrix)
 
-	#print("left")
 	templ.align("left")
-	#print("right")
+
 	tempr.align("right")
 
-	#print("up")
 	tempu.align("up")
 
-	#print("down")
 	tempd.align("down")
-	maxScore = copy.deepcopy(mat.score)
-	direc = 0
-	if(dep == 3):
+	maxScore = 0
+	direc = "n"
+	direc2 = "n"
+	if(dep >= _limit):
 		dep -= 1
-		#print(dep)
 		return maxScore
-	
+
 	for i in range(4):
 		for j in range(4):
 			if(templ.matrix[i][j] == 0):
 				templ.matrix[i][j] = 2
-				ans = forsee(copy.deepcopy(templ),dep+1)
+				ans = forsee(templ,dep+1,_limit)
 				if(ans > maxScore):
 					maxScore = ans
-					direc = 0
-
+					direc = "l"
 				templ.matrix[i][j] = 0
 	print("-----")
+
 	for i in range(4):
 		for j in range(4):
 			if(tempr.matrix[i][j] == 0):
 				tempr.matrix[i][j] = 2
-				ans = forsee(copy.deepcopy(tempr),dep+1)
+				ans = forsee(tempr,dep+1,_limit)
 				if(ans > maxScore):
 					maxScore = ans
-					direc = 1
+					direc = "r"
 				tempr.matrix[i][j] = 0
 	print("-----")
+
 	for i in range(4):
 		for j in range(4):
 			if(tempd.matrix[i][j] == 0):
 				tempd.matrix[i][j] = 2
-				ans = forsee(copy.deepcopy(tempd),dep+1)
+				ans = forsee(tempd,dep+1,_limit)
 				if(ans > maxScore):
 					maxScore = ans
-					direc = 2
+					direc = "d"
 				tempd.matrix[i][j] = 0
 	print("-----")
+
 	for i in range(4):
 		for j in range(4):
 			if(tempu.matrix[i][j] == 0):
 				tempu.matrix[i][j] = 2
-				ans = forsee(copy.deepcopy(tempu),dep+1)
+				ans = forsee(tempu,dep+1,_limit)
 				if(ans > maxScore):
 					maxScore = ans
-					direc = 3
+					direc = "u"
 				tempu.matrix[i][j] = 0
-	print ("direction: ", direc)
+	
 	if(dep == 1):
+		print ("direction: ", direc)
 		return direc
 	return maxScore
 	
 while NotGameOver: # main game loop
-	keys = pygame.key.get_pressed()
-	while (not(keys[pygame.K_LEFT] == 1 or keys[pygame.K_RIGHT] == 1 or keys[pygame.K_UP] == 1 or keys[pygame.K_DOWN] == 1)):
-		keys = pygame.key.get_pressed()
+
+	for getevent in pygame.event.get():
 		pygame.event.pump()
-
-	pygame.event.pump()
-	time.sleep(0.01)
-	if keys[pygame.K_LEFT] == 1:
-		if(not X.checkMovable("l")):
-			X.align("left")
-		else:
-			keys[pygame.K_LEFT] = 0
-	if keys[pygame.K_RIGHT] == 1:
-		if(not X.checkMovable("r")):
-			X.align("right")
-		else:
-			keys[pygame.K_RIGHT] = 0
-	if keys[pygame.K_UP] == 1:
-		if(not X.checkMovable("u")):
-			X.align("up")
-		else:
-			keys[pygame.K_UP] = 0
-	if keys[pygame.K_DOWN] == 1:
-		if(not X.checkMovable("d")):
-			X.align("down")
-		else:
-			keys[pygame.K_DOWN] = 0
-	if(not X.checkGameOver()):
-		GameOver()
-		break
-	if(keys[pygame.K_LEFT]==1 or keys[pygame.K_RIGHT]==1 or keys[pygame.K_UP]==1 or keys[pygame.K_DOWN]==1):
-		for row in range(4):
-			for col in range(4):
-				print(X.matrix[row][col], end=" ")
-			print()
-		print("---------")
-		X.randomSpawn()
-		drawGrid()
-		drawNumber()
-		pygame.display.update()
-	if keys[pygame.K_ESCAPE] == 1:
-		pygame.quit()
-		f.close()
-		sys.exit()
-
-			
-	
+		FORSEE = False
+		keypress = False
+		if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_RETURN:
+			DIR = forsee(X,1,3)
+			FORSEE = True
+			if DIR == "l":
+				if(not X.checkMovable("l")):
+					X.align("left")
+					keypress = True
+			if DIR == "r":
+				if(not X.checkMovable("r")):
+					X.align("right")
+					keypress = True
+			if DIR == "u":
+				if(not X.checkMovable("u")):
+					X.align("up")
+					keypress = True
+			if DIR == "d":
+				if(not X.checkMovable("d")):
+					X.align("down")
+					keypress = True
+		if getevent.type==QUIT:
+			pygame.quit()
+			sys.exit()
+		
+		if FORSEE == False:
+			if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_LEFT:
+				print("In left")
+				if(not X.checkMovable("l")):
+					X.align("left")
+					keypress = True
+			if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_RIGHT:
+				if(not X.checkMovable("r")):
+					X.align("right")
+					keypress = True
+			if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_UP:
+				if(not X.checkMovable("u")):
+					X.align("up")
+					keypress = True
+			if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_DOWN:
+				if(not X.checkMovable("d")):
+					X.align("down")
+					keypress = True
+		if(not X.checkGameOver()):
+			GameOver()
+			pygame.quit()
+			sys.exit()
+		if keypress == True:
+			for row in range(4):
+				for col in range(4):
+					print(X.matrix[row][col], end = " " )
+				print()
+			print("---------")
+			X.randomSpawn()
+			drawGrid()
+			drawNumber()
+			pygame.display.update()
+		if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_ESCAPE:
+			pygame.quit()
+			sys.exit()
