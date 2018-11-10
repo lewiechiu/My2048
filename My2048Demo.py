@@ -5,7 +5,7 @@ import random
 import math
 import time
 import copy
-
+import multiprocessing
 
 LabelX = 0 #左上角的X座標
 LabelY = 0 #左上角的Y座標
@@ -392,50 +392,23 @@ def forsee(mat,depth,lim):
 	if(dep >= _limit):
 		dep -= 1
 		return maxScore
-
-	for i in range(4):
-		for j in range(4):
-			if(templ.matrix[i][j] == 0):
-				templ.matrix[i][j] = 2
-				ans = forsee(templ,dep+1,_limit)
-				if(ans > maxScore):
-					maxScore = ans
-					direc = "l"
-				templ.matrix[i][j] = 0
+	def probe(_matr,score):
+		_scr = copy.deepcopy(score)
+		for i in range(4):
+			for j in range(4):
+				if(_matr.matrix[i][j] == 0):
+					_matr.matrix[i][j] = 2
+					_scr = forsee(_matr,dep+1,_limit)
+					if(_scr > maxScore):
+						maxScore = _scr
+						direc = "l"
+					_matr.matrix[i][j] = 0
+	probe(templ,maxScore)
+	probe(tempr,maxScore)
+	probe(tempu,maxScore)
+	probe(tempd,maxScore)
 	print("-----")
 
-	for i in range(4):
-		for j in range(4):
-			if(tempr.matrix[i][j] == 0):
-				tempr.matrix[i][j] = 2
-				ans = forsee(tempr,dep+1,_limit)
-				if(ans > maxScore):
-					maxScore = ans
-					direc = "r"
-				tempr.matrix[i][j] = 0
-	print("-----")
-
-	for i in range(4):
-		for j in range(4):
-			if(tempd.matrix[i][j] == 0):
-				tempd.matrix[i][j] = 2
-				ans = forsee(tempd,dep+1,_limit)
-				if(ans > maxScore):
-					maxScore = ans
-					direc = "d"
-				tempd.matrix[i][j] = 0
-	print("-----")
-
-	for i in range(4):
-		for j in range(4):
-			if(tempu.matrix[i][j] == 0):
-				tempu.matrix[i][j] = 2
-				ans = forsee(tempu,dep+1,_limit)
-				if(ans > maxScore):
-					maxScore = ans
-					direc = "u"
-				tempu.matrix[i][j] = 0
-	
 	if(dep == 1):
 		print ("direction: ", direc)
 		return direc
@@ -448,6 +421,7 @@ while NotGameOver: # main game loop
 		FORSEE = False
 		keypress = False
 		if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_RETURN:
+    		
 			DIR = forsee(X,1,3)
 			FORSEE = True
 			if DIR == "l":
