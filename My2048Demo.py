@@ -1,13 +1,14 @@
-
+# -*- coding: utf-8 -*-
 import pygame, sys
 from pygame.locals import *
 import random
 import math
 import time
 import copy
-import multiprocessing
 
-LabelX = 0 #左上角的X座標
+
+LabelX = 0 
+
 LabelY = 0 #左上角的Y座標
 
 #FrontEnd TODO 
@@ -81,7 +82,7 @@ class My2048:
 				#insert back proper len
 				for times in range(4-len(self.matrix[row])):
 					self.matrix[row].append(0)
-			print(self.score)
+			
 		if direction == "right":
 			for row in range(4):
 				#to remove 0s in the array
@@ -99,7 +100,7 @@ class My2048:
 				#insert back proper len
 				for times in range(4-len(self.matrix[row])):
 					self.matrix[row].insert(0,0)
-			print(self.score)
+			
 		if direction == "up":
 			TempMatrix = [[],[],[],[]]
 
@@ -131,7 +132,7 @@ class My2048:
 			for row in range(4):
 				for col in range(4):
 					self.matrix[col][row*(-1)+3] = TempMatrix[row][col]
-			print(self.score)
+			
 		if direction == "down":
 			TempMatrix = [[],[],[],[]]
 			for col in range(3,-1,-1):
@@ -161,12 +162,8 @@ class My2048:
 			for row in range(4):
 				for col in range(4):
 					self.matrix[col][row*(-1)+3] = TempMatrix[row][col]
-			#for row in range(4):
-			#	for col in range(len(TempMatrix[row])):
-			#		print(self.matrix[row][col], end=" ")
-			#	print()
-			#print("---------")
-			print(self.score)
+		X.score = self.score
+		print(self.score)
 	def randomSpawn(self):
 		# 如果想要一次有可能產生兩個數字，就把這段取消註解，還有適當的縮排
 		# numsToInsert = random.randint(1,2)
@@ -357,6 +354,10 @@ def drawNumber():
 
 ShowText("MY 2048 XD",My2048Position[0],My2048Position[1],My2048Size,HeaderTitleColor,(backGroundColor))
 
+def getReleased(key):
+	if pygame.key.get_pressed()[key] == False:
+		return True
+	return False
 
 pygame.display.update()
 
@@ -367,73 +368,48 @@ NotGameOver = True
 f = open("out.txt","w")
 maxScore = 0
 
-def forsee(mat,depth,lim):
-	
-	dep = copy.deepcopy(depth)
-	_limit = copy.deepcopy(lim)
-	tempr = copy.deepcopy(mat)
-	tempr.matrix = copy.deepcopy(mat.matrix)
-	templ = copy.deepcopy(mat) 
-	templ.matrix = copy.deepcopy(mat.matrix)
-	tempu = copy.deepcopy(mat) 
-	tempu.matrix = copy.deepcopy(mat.matrix)
-	tempd = copy.deepcopy(mat) 
-	tempd.matrix = copy.deepcopy(mat.matrix)
-
-	templ.align("left")
-	tempr.align("right")
-	tempu.align("up")
-	tempd.align("down")
 
 	
 while NotGameOver: # main game loop
 
 	for getevent in pygame.event.get():
 		pygame.event.pump()
-		FORSEE = False
+		
 		keypress = False
-		if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_RETURN:
-    		
-			DIR = forsee(X,1,3)
-			FORSEE = True
-			if DIR == "l":
-				if(not X.checkMovable("l")):
-					X.align("left")
-					keypress = True
-			if DIR == "r":
-				if(not X.checkMovable("r")):
-					X.align("right")
-					keypress = True
-			if DIR == "u":
-				if(not X.checkMovable("u")):
-					X.align("up")
-					keypress = True
-			if DIR == "d":
-				if(not X.checkMovable("d")):
-					X.align("down")
-					keypress = True
+		
 		if getevent.type==QUIT:
 			pygame.quit()
 			sys.exit()
 		
-		if FORSEE == False:
-			if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_LEFT:
-				print("In left")
-				if(not X.checkMovable("l")):
-					X.align("left")
-					keypress = True
-			if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_RIGHT:
-				if(not X.checkMovable("r")):
-					X.align("right")
-					keypress = True
-			if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_UP:
-				if(not X.checkMovable("u")):
-					X.align("up")
-					keypress = True
-			if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_DOWN:
-				if(not X.checkMovable("d")):
-					X.align("down")
-					keypress = True
+		
+		if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_LEFT:
+			if(not X.checkMovable("l")):
+				X.align("left")
+				keypress = True
+				while pygame.key.get_pressed()[pygame.K_LEFT]==1:
+					pygame.event.pump()
+					pass
+		if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_RIGHT:
+			if(not X.checkMovable("r")):
+				X.align("right")
+				keypress = True
+				while pygame.key.get_pressed()[pygame.K_RIGHT]==1:
+					pygame.event.pump()
+					pass
+		if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_UP:
+			if(not X.checkMovable("u")):
+				X.align("up")
+				keypress = True
+				while pygame.key.get_pressed()[pygame.K_UP]==1:
+					pygame.event.pump()
+					pass
+		if getevent.type == pygame.KEYDOWN and getevent.key == pygame.K_DOWN:
+			if(not X.checkMovable("d")):
+				X.align("down")
+				keypress = True
+				while pygame.key.get_pressed()[pygame.K_DOWN]==1:
+					pygame.event.pump()
+					pass
 		if(not X.checkGameOver()):
 			GameOver()
 			pygame.quit()
