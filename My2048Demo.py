@@ -81,6 +81,7 @@ class My2048:
 				#insert back proper len
 				for times in range(4-len(self.matrix[row])):
 					self.matrix[row].append(0)
+			print(self.score)
 		if direction == "right":
 			for row in range(4):
 				#to remove 0s in the array
@@ -98,7 +99,7 @@ class My2048:
 				#insert back proper len
 				for times in range(4-len(self.matrix[row])):
 					self.matrix[row].insert(0,0)
-
+			print(self.score)
 		if direction == "up":
 			TempMatrix = [[],[],[],[]]
 
@@ -130,6 +131,7 @@ class My2048:
 			for row in range(4):
 				for col in range(4):
 					self.matrix[col][row*(-1)+3] = TempMatrix[row][col]
+			print(self.score)
 		if direction == "down":
 			TempMatrix = [[],[],[],[]]
 			for col in range(3,-1,-1):
@@ -164,6 +166,7 @@ class My2048:
 			#		print(self.matrix[row][col], end=" ")
 			#	print()
 			#print("---------")
+			print(self.score)
 	def randomSpawn(self):
 		# 如果想要一次有可能產生兩個數字，就把這段取消註解，還有適當的縮排
 		# numsToInsert = random.randint(1,2)
@@ -258,9 +261,6 @@ def ShowText(text,Posx,Posy,size,color,BGC):
 	pygame.display.update()
 	fontList = pygame.font.get_fonts()
 	return TextSurf
-
-	#(155, 171, 198)
-
 DISPLAYSURF.fill(backGroundColor)
 tilelist = [[],[],[],[]]
 
@@ -365,9 +365,10 @@ pygame.display.update()
 print(Window_Width,",",Window_Width)
 NotGameOver = True
 f = open("out.txt","w")
+maxScore = 0
 
 def forsee(mat,depth,lim):
-	print(depth)
+	
 	dep = copy.deepcopy(depth)
 	_limit = copy.deepcopy(lim)
 	tempr = copy.deepcopy(mat)
@@ -380,39 +381,10 @@ def forsee(mat,depth,lim):
 	tempd.matrix = copy.deepcopy(mat.matrix)
 
 	templ.align("left")
-
 	tempr.align("right")
-
 	tempu.align("up")
-
 	tempd.align("down")
-	maxScore = 0
-	direc = "n"
-	direc2 = "n"
-	if(dep >= _limit):
-		dep -= 1
-		return maxScore
-	def probe(_matr,score):
-		_scr = copy.deepcopy(score)
-		for i in range(4):
-			for j in range(4):
-				if(_matr.matrix[i][j] == 0):
-					_matr.matrix[i][j] = 2
-					_scr = forsee(_matr,dep+1,_limit)
-					if(_scr > maxScore):
-						maxScore = _scr
-						direc = "l"
-					_matr.matrix[i][j] = 0
-	probe(templ,maxScore)
-	probe(tempr,maxScore)
-	probe(tempu,maxScore)
-	probe(tempd,maxScore)
-	print("-----")
 
-	if(dep == 1):
-		print ("direction: ", direc)
-		return direc
-	return maxScore
 	
 while NotGameOver: # main game loop
 
@@ -466,7 +438,9 @@ while NotGameOver: # main game loop
 			GameOver()
 			pygame.quit()
 			sys.exit()
+		
 		if keypress == True:
+			print("inside", X.score)
 			for row in range(4):
 				for col in range(4):
 					print(X.matrix[row][col], end = " " )
